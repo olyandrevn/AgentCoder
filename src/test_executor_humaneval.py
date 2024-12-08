@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import inspect
 import numpy as np
 import sys
-sys.path.append('../CodeGeeX/')
+# sys.path.append('../CodeGeeX/')
 import contextlib
 import faulthandler
 import io
@@ -21,8 +21,9 @@ from tqdm import tqdm
 from tqdm import tqdm
 from programmer_humaneval import call_fetch_completion_helper
 from test_designer_humaneval import call_fetch_test_completion_helper
-from codegeex.benchmark.utils import read_dataset, IMPORT_HELPER
-from codegeex.benchmark.execution import check_correctness
+# from codegeex.benchmark.utils import read_dataset, IMPORT_HELPER
+# from codegeex.benchmark.execution import check_correctness
+from execution import check_correctness
 import tempfile
 correct_doctest = 0
 correct_before_doctest = 0
@@ -37,6 +38,50 @@ idx_run_tests_fuzzer = []
 idx_run_tests_fuzzer_canonical_solution = []
 
 language = ["python","cpp","js","go","js"]
+
+IMPORT_HELPER = {
+    "python": [
+        "import math",
+        "import re",
+        "import sys",
+        "import copy",
+        "import datetime",
+        "import itertools",
+        "import collections",
+        "import heapq",
+        "import statistics",
+        "import functools",
+        "import hashlib",
+        "import numpy",
+        "import numpy as np",
+        "import string",
+        "from typing import *",
+        "from collections import *",
+    ],
+    "go"    : [
+        "math",
+        "strings",
+        "fmt",
+        "strconv",
+        "time",
+        "bytes",
+        "regexp",
+        "sort",
+        "math/rand",
+        "crypto/md5",
+    ],
+    "cpp"   : [
+        "#include<stdlib.h>",
+        "#include<algorithm>",
+        "#include<math.h>",
+        "#include<stdio.h>",
+        "#include<vector>",
+        "#include<string>",
+        "#include<climits>",
+        "#include<cstring>",
+        "#include<iostream>",
+    ],
+}
 
 
 class TimeoutException(Exception):
