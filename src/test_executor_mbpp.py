@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import inspect
 import numpy as np
 import sys
-sys.path.append('./CodeGeeX/')
+# sys.path.append('./CodeGeeX/')
 import contextlib
 import faulthandler
 import io
@@ -17,10 +17,14 @@ import multiprocessing
 import platform
 import signal
 from tqdm import tqdm
-from programmer_mbpp import fix_bug,call_fix_bug,call_completion,single_agent_helper
-from codegeex.benchmark.utils import read_dataset, IMPORT_HELPER
-from codegeex.benchmark.execution import check_correctness
+# from programmer_mbpp import fix_bug,call_fix_bug,call_completion, single_agent_helper
+from programmer_mbpp import fix_bug, call_fix_bug, call_completion
+# from codegeex.benchmark.utils import read_dataset, IMPORT_HELPER
+# from codegeex.benchmark.execution import check_correctness
 import tempfile
+
+from src.execution import check_correctness
+
 correct_doctest = 0
 correct_before_doctest = 0
 correct_after_doctest = 0
@@ -77,7 +81,7 @@ def preprocess_data(task,lg):
     return task
 
 
-    
+
 
 
 
@@ -137,7 +141,7 @@ def test_report(dataset,lg):
     correct_percent = correct/len(dataset)*100
     print(f"test_report, {correct_percent:0.2f}")
     return dataset
-    
+
 def test_agent(dataset,lg):
     correct = 0
     for i in tqdm(range(len(dataset))):
@@ -170,6 +174,3 @@ if __name__ == "__main__":
                     json.dump(dataset, f, indent=4)
             with open(f"./dataset/zero_shot_{model_name}_{current_epoch}_mbpp_total.json", "w") as f:
                 json.dump(dataset, f, indent=4)
-
-
-

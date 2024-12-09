@@ -11,7 +11,7 @@ from datasets import load_dataset
 # Setting API parameters
 openai.api_key = 'API_KEY'
 
-dataset = load_dataset("evalplus/mbppplus",split="test")
+dataset = load_dataset("evalplus/mbppplus", split="test")
 dataset = [entry for entry in dataset]
 task_0_tests = "\n".join(dataset[0]["test_list"])
 task_1_tests = "\n".join(dataset[1]["test_list"])
@@ -65,6 +65,8 @@ def fetch_completion(data_entry, model, lg,times=5):
             if test_case!="":
                 break
         test_case_list.append(test_case)
+        with open(f"generated_tests_{data_entry.get('task_id', 'unknown')}.json", "w") as f:
+            json.dump({"task_id": data_entry.get('task_id'), "test_cases": test_case_list}, f)
     data_entry["test_case_list"] = test_case_list
     return data_entry
 

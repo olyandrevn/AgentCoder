@@ -17,12 +17,13 @@ load_dotenv()  # Loads variables from .env file into environment
 # openai.api_base = "https://api.aiohub.org/v1"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-dataset = load_dataset("openai_humaneval",split="test")
+dataset = load_dataset("openai_humaneval", split="test")
 dataset = [entry for entry in dataset]
 
 prompt_path = "../prompts/humaneval_prompt_update.txt"
 with open(prompt_path, "r") as f:
     construct_few_shot_prompt = f.read()
+
 
 def preprocess_data(completion_string):
     if f"```python" in completion_string:
@@ -33,8 +34,9 @@ def preprocess_data(completion_string):
         print("Error: No code block found")
     return completion_string
 
+
 # Function to fetch completion
-def fetch_completion(data_entry, model,lg,times = 5):
+def fetch_completion(data_entry, model, lg, times=5):
     global construct_few_shot_prompt
     if "need_reproduce" in data_entry.keys() and data_entry["need_reproduce"]==False:
         return data_entry
@@ -48,6 +50,17 @@ def fetch_completion(data_entry, model,lg,times = 5):
 ```
 ## Completion 3:
 """
+    try:
+        with open(f"../dataset/generated_tests_{data_entry.get('task_id', 'unknown')}.json", "r") as f:
+            generated_tests = json.load(f)
+            # Add tests to the prompt
+            test_cases = "\nYour code should pass these additional tests:\n```python"
+            for test in generated_tests["test_case_list"]:
+                test_cases += "\n" + test
+            test_cases += "\n```"
+            text += test_cases
+    except FileNotFoundError:
+        pass
     completions_code = []
     for i in range(times):
         while True:
@@ -76,7 +89,7 @@ def fetch_completion(data_entry, model,lg,times = 5):
     return data_entry
 
 
-def call_fetch_completion_helper(dataset, model,lg):
+def call_fetch_completion_helper(dataset, model, lg):
     print("Fixing bug...")
     with ThreadPoolExecutor(max_workers=5) as executor:
         future_to_entry = {executor.submit(fetch_completion, copy.deepcopy(entry), model, lg): entry for entry in tqdm(dataset)}
@@ -89,6 +102,7 @@ def call_fetch_completion_helper(dataset, model,lg):
             except Exception as e:
                 print(repr(e))
     return dataset
+
 
 if __name__ == "__main__":
     model_list = ["gpt-3.5-turbo-1106"]

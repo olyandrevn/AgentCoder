@@ -69,6 +69,12 @@ def fetch_completion(data_entry, model, lg,times=10):
             if test_case!="":
                 break
         test_case_list.append(test_case)
+    with open(f"../dataset/generated_tests_{data_entry.get('task_id', 'unknown')}.json", "w") as f:
+        json.dump({
+            "task_id": data_entry.get('task_id'),
+            "test_case_list": test_case_list,
+            "entry_point": data_entry.get('entry_point')
+        }, f)
     data_entry["test_case_list"] = test_case_list
     return data_entry
 

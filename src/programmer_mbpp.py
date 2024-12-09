@@ -9,7 +9,7 @@ import concurrent.futures
 
 # Setting API parameters
 openai.api_base = "https://api.aiohub.org/v1"
-openai.api_key = 'API_KEY'
+openai.api_key = 'OPENAI_API_KEY'
 
 prompt_path = "../prompts/mbpp_prompt_update.txt"
 with open(prompt_path, "r") as f:
@@ -31,6 +31,12 @@ def fetch_completion(data_entry, model,lg):
         return data_entry
     prompt = data_entry["prompt"]
     test_case = data_entry["test_list"]
+    try:
+        with open(f"generated_tests_{data_entry.get('task_id', 'unknown')}.json", "r") as f:
+            generated_tests = json.load(f)
+            test_case.extend(generated_tests["test_cases"])
+    except FileNotFoundError:
+        pass  # No generated tests found for this task
     code = data_entry["completion"]
     tests = ""
     for test in test_case:
@@ -127,9 +133,10 @@ if __name__ == "__main__":
     for model in model_list:
         for lg in language:
             from datasets import load_dataset
-            dataset = load_dataset("mbpp",name="sanitized",split="test")
+            dataset = load_dataset("mbpp", name="sanitized", split="test")
             dataset = [entry for entry in dataset]
-            with open(path, "r") as f:
+            # with open(path, "r") as f:
+            with open(f"./dataset/{model}_mbpp.json", "w") as f:
                 dataset = json.load(f)
             with ThreadPoolExecutor(max_workers=20) as executor:
                 future_to_entry = {executor.submit(fetch_completion, copy.deepcopy(entry), model, lg): entry for entry in tqdm(dataset)}
