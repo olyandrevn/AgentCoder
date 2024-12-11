@@ -53,6 +53,7 @@ Your code should pass these tests:
 {tests}
 ```
 """
+    text += "\nTest Analysis:\n" + generated_tests["test_feedback"]
     try:
         completions = openai.ChatCompletion.create(
             model = model,

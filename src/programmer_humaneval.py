@@ -59,6 +59,7 @@ def fetch_completion(data_entry, model, lg, times=5):
                 test_cases += "\n" + test
             test_cases += "\n```"
             text += test_cases
+            text += "\nTest Analysis:\n" + generated_tests["test_feedback"]
     except FileNotFoundError:
         pass
     completions_code = []

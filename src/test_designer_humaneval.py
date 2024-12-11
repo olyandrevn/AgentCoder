@@ -31,6 +31,31 @@ def preprocess_data(test_case_string):
 
     return test_case_string
 
+def get_test_feedback(data_entry):
+    """Analyzes test cases using GPT to get feedback on their quality"""
+    prompt = data_entry["prompt"]
+    test_cases = "\n".join(data_entry["test_case_list"])
+    entry_point = data_entry["entry_point"]
+
+    text = f"""You have tests as an input. Please review them and give some kind of feedback in several sentences. Tests: {test_cases}, prompt: {prompt} and entry_point: {entry_point}"""
+
+    try:
+        completions = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {"role": "system", "content": "You are a Python testing expert."},
+                {"role": "user", "content": text}
+            ],
+            request_timeout=100
+        )
+
+        feedback = completions.choices[0]["message"]["content"]
+        return feedback
+
+    except Exception as e:
+        print(f"Error getting test feedback: {e}")
+        return "Could not get test feedback"
+
 # Function to fetch completion
 def fetch_completion(data_entry, model, lg,times=10):
     global construct_few_shot_prompt
@@ -69,11 +94,13 @@ def fetch_completion(data_entry, model, lg,times=10):
             if test_case!="":
                 break
         test_case_list.append(test_case)
+    test_feedback = get_test_feedback(data_entry)
     with open(f"../dataset/generated_tests_{data_entry.get('task_id', 'unknown')}.json", "w") as f:
         json.dump({
             "task_id": data_entry.get('task_id'),
             "test_case_list": test_case_list,
-            "entry_point": data_entry.get('entry_point')
+            "entry_point": data_entry.get('entry_point'),
+            "test_feedback": test_feedback
         }, f)
     data_entry["test_case_list"] = test_case_list
     return data_entry
